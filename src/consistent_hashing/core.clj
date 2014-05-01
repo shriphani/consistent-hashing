@@ -50,12 +50,7 @@
                         (map map-to-unit-circle caches)))]
     (map
      (fn [x]
-       {:mapped-items
-        mapped-items
-        :mapped-caches
-        mapped-caches
-        :assignment
-        (assign-item x mapped-caches)})
+       (assign-item x mapped-caches))
      mapped-items)))
 
 (defn random-take
@@ -73,7 +68,7 @@
   (let [num-assgns 100]
     (map
      (fn [i]
-       (let [to-take (rand-nth caches)
+       (let [to-take (rand-nth (range 1 (count caches)))
              seen-caches (random-take caches to-take)]
          (assign items seen-caches)))
      (range num-assgns))))
