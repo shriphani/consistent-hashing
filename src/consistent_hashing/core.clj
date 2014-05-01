@@ -2,9 +2,9 @@
   (:require [digest])
   (:import [java.nio ByteBuffer]))
 
-(def items (range 1000))
+(def items (range 10000))
 
-(def caches (range 10))
+(def caches (range 100))
 
 (defn map-to-unit-circle
   [x]
@@ -28,8 +28,8 @@
              (.getBytes)
              bigint)]
     (double
-     (/ (rem val 10)
-        10))))
+     (/ (rem val 100000)
+        100000))))
 
 (defn assign-item
   [[item pt] caches-points]

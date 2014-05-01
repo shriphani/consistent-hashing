@@ -4,10 +4,6 @@
            [java.awt.image BufferedImage]
            [java.awt Graphics Dimension Color]))
 
-(defn draw-everything
-  []
-  ())
-
 (defn paint-canvas [size graphics caches assignment]
 
   ;; draw the unit circle
@@ -28,8 +24,14 @@
                 (int (* (/ size 2) (Math/sin (* x
                                                 2
                                                 Math/PI)))))
-               10
-               10))
+               (if (assignment c)
+                 (+ 10 (/ (assignment c)
+                          1000))
+                 10)
+               (if (assignment c)
+                 (+ 10 (/ (assignment c)
+                          1000))
+                 10)))
   (.drawOval graphics
              0
              0
@@ -59,19 +61,24 @@
         simulated (core/simulation)
 
         load-pics 
-        (reductions
-         (fn [acc x]
+        (map
+         (fn [xs]
            (reduce
             (fn [acc [c is]]
-              (merge
-               acc
-               {c (distinct is)}))
+              (merge-with +' acc {c (count is)}))
             {}
-            (reduce
-             (fn [acc [c is]]
-               (merge-with concat acc {c is}))
-             {}
-             (map vector x (map vector core/items)))))
-         {}
-         simulated)]
-    (draw 800 mapped-caches load-pics)))
+            xs))
+         (reductions
+          (fn [acc x]
+            (let [cache-items (reduce
+                               (fn [acc [c is]]
+                                 (merge-with clojure.set/union acc {c (set is)}))
+                               {}
+                               (map vector x (map vector core/items)))]
+              (merge-with clojure.set/union acc cache-items)))
+          {}
+          simulated))]
+    ;(draw 800 mapped-caches load-pics)
+    (doseq [assignments (rest load-pics)]
+      (println assignments)
+      (draw 500 mapped-caches assignments))))
