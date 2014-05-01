@@ -19,6 +19,18 @@
      (/ (rem val 100000)
         100000))))
 
+(defn map-cache-to-unit-circle
+  [x]
+  (let [val
+        (->> x
+             str
+             digest/md5
+             (.getBytes)
+             bigint)]
+    (double
+     (/ (rem val 10)
+        10))))
+
 (defn assign-item
   [[item pt] caches-points]
   (let [dsts (sort-by
@@ -47,7 +59,7 @@
                        (map
                         vector
                         caches
-                        (map map-to-unit-circle caches)))]
+                        (map map-cache-to-unit-circle caches)))]
     (map
      (fn [x]
        (assign-item x mapped-caches))
