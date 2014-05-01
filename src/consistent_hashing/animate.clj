@@ -40,12 +40,22 @@
         mapped-caches (map vector
                            core/caches
                            (map core/map-to-unit-circle core/caches))
-        simulated (core/simulation)]
-    (reductions
-     (fn [acc x]
-       (merge-with
-        +'
-        acc
-        (frequencies x)))
-     {}
-     simulated)))
+        simulated (core/simulation)
+
+        load-pics 
+        (reductions
+         (fn [acc x]
+           (reduce
+            (fn [acc [c is]]
+              (merge
+               acc
+               {c (distinct is)}))
+            {}
+            (reduce
+             (fn [acc [c is]]
+               (merge-with concat acc {c is}))
+             {}
+             (map vector x (map vector core/items)))))
+         {}
+         simulated)]
+    load-pics))
