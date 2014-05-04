@@ -2,7 +2,8 @@
   (:require [consistent-hashing.core :as core])
   (:import [javax.swing JFrame JLabel]
            [java.awt.image BufferedImage]
-           [java.awt Graphics Dimension Color]))
+           [java.awt Graphics Dimension Color]
+           [gifAnimation GifEncoder]))
 
 (defn paint-canvas [size graphics caches assignment]
 
@@ -11,27 +12,24 @@
   (.fillRect graphics 0 0 (+ 10 size) (+ 10 size))
   (doseq [[c x] caches]
     (.setColor graphics (Color. 255 0 0))
-    (.fillOval graphics
-               (+
-                (/ size 2)
-                (- 5)
-                (int (* (/ size 2) (Math/cos (* x
-                                                2
-                                                Math/PI)))))
-               (+
-                (/ size 2)
-                (- 5)
-                (int (* (/ size 2) (Math/sin (* x
-                                                2
-                                                Math/PI)))))
-               (if (assignment c)
-                 (+ 10 (/ (assignment c)
-                          1000))
-                 10)
-               (if (assignment c)
-                 (+ 10 (/ (assignment c)
-                          1000))
-                 10)))
+    (when (assignment c)
+      (let [diam (+ 10 (/ (assignment c)
+                          250))]
+        (.fillOval graphics
+                   (+
+                    (/ size 2)
+                    (- (/ diam 2))
+                    (int (* (/ size 2) (Math/cos (* x
+                                                    2
+                                                    Math/PI)))))
+                   (+
+                    (/ size 2)
+                    (- (/ diam 2))
+                    (int (* (/ size 2) (Math/sin (* x
+                                                    2
+                                                    Math/PI)))))
+                   diam
+                   diam))))
   (.drawOval graphics
              0
              0
@@ -40,15 +38,17 @@
 
 (defn draw [size caches assignment]
   (let [image  (BufferedImage. (+ 10 size) (+ 10 size) BufferedImage/TYPE_INT_RGB)
-        canvas (proxy [JLabel] []
-                 (paint [g] (.drawImage g image 0 0 this)))]
+        ;; canvas (proxy [JLabel] []
+        ;;          (paint [g] (.drawImage g image 0 0 this)))
+        ]
 
     (paint-canvas size (.createGraphics image) caches assignment)
     
-    (doto (JFrame.)
-      (.add canvas)
-      (.setSize (Dimension. (+ 10 size) (+ 10 size)))
-      (.show))))
+    ;; (doto (JFrame.)
+    ;;   (.add canvas)
+    ;;   (.setSize (Dimension. (+ 10 size) (+ 10 size)))
+    ;;   (.show))
+    image))
 
 (defn animate-load
   []
@@ -77,8 +77,14 @@
                                (map vector x (map vector core/items)))]
               (merge-with clojure.set/union acc cache-items)))
           {}
-          simulated))]
-    ;(draw 800 mapped-caches load-pics)
+          simulated))
+
+        encoder (new GifEncoder)]
+    ;;(draw 800 mapped-caches load-pics)
+    (.start encoder "load.gif")
+    (.setRepeat encoder 0)
     (doseq [assignments (rest load-pics)]
       (println assignments)
-      (draw 500 mapped-caches assignments))))
+      (let [img (draw 500 mapped-caches assignments)]
+        (.addFrame encoder img)))
+    (.finish encoder)))
