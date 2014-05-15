@@ -8,7 +8,7 @@ See src/consistent_hashing/animate.clj for a demo of how to use this
 lib.
 
 See
-[this blog post](blog.shriphani.com/2014/05/01/consistent-hashing-in-clojure/)
+[this blog post](http://blog.shriphani.com/2014/05/01/consistent-hashing-in-clojure/)
 for an explanation of consistent hashing.
 
 ## License
